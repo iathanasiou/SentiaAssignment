@@ -1,0 +1,40 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+  
+	"NamePrefix": {
+    "Value": "sentia" 
+	},  	
+    "storageAccountType": {
+      "value": "Standard_LRS"
+    },
+    "blobEncryptionEnabled": {
+      "value": true
+    },	
+	 "vnetName": {
+      "value": "Sentiavnet1"
+    },
+    "vnetAddressPrefix": {
+      "value": "172.16.0.0/12"
+    },
+    "subnet1Name": {
+      "value": "SentiaSubnet1"
+    },
+    "subnet1Prefix": {
+      "value": "172.16.0.0/13"
+    },
+    "subnet2Name": {
+	  "value": "SentiaSubnet2"
+    },
+    "subnet2Prefix": {
+      "value": "172.24.0.0/14"
+    },
+	"subnet3Name": {
+      "value": "SentiaSubnet3"
+    },
+    "subnet3Prefix": {
+      "value": "172.28.0.0/14"
+    }
+   }
+  }

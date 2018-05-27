@@ -1,0 +1,10 @@
+{     "if": {
+        "not": {
+          "field": "type",
+				"in":["Microsoft.Compute","Microsoft.Network","Microsoft.Storage"]
+        }
+      },
+      "then": {
+        "effect": "deny"
+      }
+    }
