@@ -51,55 +51,53 @@ Function RegisterRP {
 #Create resource group tags
 Function CreateTags {
 Param(
-        [string]$env,
-		[string]$comp
+        [string]$param1,
+		[string]$param2,
+		[string]$param3
      )
 	 
-#posible environment values (development , test ,production) switch ?	 
-Write-Host "Creating tags for the resource group '$resourceGroupName'";
-Write-Host "Please choose a value for environment tag from Test/Development/Production";
-$env = Read-Host "environment";
-Write-Host "Please enter the name of your company.";
-$comp = Read-Host "company";
-
-$Tags = (Get-AzureRmResourceGroup -Name $resourceGroupName).Tags;
-
-
-		<#if($tags.containsKey("Environment"))
+ 
+$Tags = (Get-AzureRmResourceGroup -Name $param1).Tags;
+		<#	$1 = $tags.containsKey("Environment")
+		if( $1 -eq "True")
 				{$Tags.Remove("Environment");
 				}
-			else{"applying tag"}	
-				$Tags += @{"Environment"="$env"};
-				
-		if($tags.containsKey("Company"))
+			$2 = $tags.containsKey("Company")
+		if( $2 -eq "True" )
 				{$Tags.Remove("Company");
 				}
-				else{"applying tag"} #>
-				$Tags += @{"Environment"="$env"; "Company"="$comp"};
+			#>	
+		$Tags += @{"Environment"="$param2"; "Company"="$param3"};
 	  
 
-Set-AzureRmResourceGroup -Name $resourceGroupName -Tag $Tags;
+Set-AzureRmResourceGroup -Name $param1 -Tag $Tags;
 }
 
 #Apply the policy template to the resource group
 Function ApplyPolicy {
  Param(
-		[Parameter(Mandatory=$True)]
- 		[string]$PolicyName,
 		
-		[Parameter(Mandatory=$True)]
-		[string]$PolicyAssigment
+		[string]$pol1, #resourceGroupName
+		[string]$pol2,  #subscriptionId,
+ 		[string]$pol3,  #PolicyName,
+		[string]$pol4,  #PolicyAssigment
+		[string]$pol5  #policyFilePath
 	)
 
-Write-Host "Registering the policy definition and assign it to '$resourceGroupName'";
-New-AzureRmPolicyDefinition -Name $PolicyName -Policy $policyFilePath;
-New-AzureRmPolicyAssignment -Name $PolicyAssigment -PolicyDefinition (Get-AzureRmPolicyDefinition -Name $PolicyName) -Scope /subscriptions/$subscriptionId/resourceGroups/$resourceGroupName;
+Write-Host "Registering the policy definition and assign it to '$pol1'";
+New-AzureRmPolicyDefinition -Name $pol3 -Policy $pol5;
+New-AzureRmPolicyAssignment -Name $pol4 -PolicyDefinition (Get-AzureRmPolicyDefinition -Name $pol3) -Scope /subscriptions/$pol2/resourceGroups/$pol1;
 }
 
 #Validate the content of the template and parameters files.
 Function ValidateTemplate {
+Param(
+        [string]$path1,
+		[string]$path2
+     )
+	 	
 	
-$dep = (Test-AzureRmResourceGroupDeployment -ResourceGroupName test -TemplateFile $templateFilePath -TemplateParameterFile $parametersFilePath);
+$dep = (Test-AzureRmResourceGroupDeployment -ResourceGroupName test -TemplateFile $path1 -TemplateParameterFile $path2);
 
 if ($dep.Count -eq '0'){"templates are valid , applying templates";}
 	Else{"stopping the deployment, please check the templates for errors ";
@@ -112,7 +110,7 @@ if ($dep.Count -eq '0'){"templates are valid , applying templates";}
 #******************************************************************************
 $ErrorActionPreference = "Stop"
 
-ValidateTemplate ;
+ValidateTemplate $templateFilePath $parametersFilePath ;
 
 # sign in
 Write-Host "Logging in...";
@@ -147,12 +145,36 @@ else{
 }
 
 #Create the tags
-CreateTags;
+
+Write-Host "Please choose a value for environment tag from Test/Development/Production";
+$env = Read-Host "environment";
+Write-Host "Please enter the name of your company.";
+$comp = Read-Host "company";
+
+CreateTags $resourceGroupName $env $comp ;
+
 
 # Start the deployment
 Write-Host "Starting deployment...";
     New-AzureRmResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateFile $templateFilePath -TemplateParameterFile $parametersFilePath;
 
-#ApplyPolicy;
+#Apply the Policy definition and assign it to resource group
 
-Write-Host "Deployment was succesful";
+Write-Host "Please enter the name of policy definition.";
+$PolicyName = Read-Host "Policy_def";
+
+Write-Host "Please enter the name of policy assigment.";
+$PolicyAssigment = Read-Host "Policy_assigment";
+
+<#[string]$pol1, #resourceGroupName
+		[string]$pol2  #subscriptionId
+ 		[string]$pol3  #PolicyName,
+		[string]$pol4  #PolicyAssigment
+		[string]$pol5  #policyFilePath
+		#>
+ApplyPolicy $resourceGroupName $subscriptionId $PolicyName $PolicyAssigment $policyFilePath ;
+" 	##"
+" 		##"
+" 			##"
+" 				###
+Write-Host "					Deployment was succesful";
