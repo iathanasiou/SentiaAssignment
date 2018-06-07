@@ -176,5 +176,5 @@ ApplyPolicy $resourceGroupName $subscriptionId $PolicyName $PolicyAssigment $pol
 " 	##"
 " 		##"
 " 			##"
-" 				###
+" 				###"
 Write-Host "					Deployment was succesful";
